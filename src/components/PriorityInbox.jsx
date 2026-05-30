@@ -1,6 +1,16 @@
+import { useEffect } from "react";
 import NotificationCard from "./NotificationCard.jsx";
+import { Log } from "../utils/logger";
 
 function PriorityInbox({ notifications }) {
+  useEffect(() => {
+    Log(
+      "info",
+      "component",
+      `PriorityInbox loaded with ${notifications.length} notifications`
+    );
+  }, [notifications]);
+
   return (
     <div className="container">
       <h1>Priority Inbox</h1>
