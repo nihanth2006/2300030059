@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import NotificationCard from "../components/NotificationCard.jsx";
 import { fetchNotifications } from "../services/notificationService.js";
+import { Log } from "../utils/logger";
 import "../App.css";
 
 const NOTIFICATION_TYPES = ["All", "Placement", "Result", "Event"];
@@ -25,7 +26,9 @@ function AllNotifications() {
 
     try {
       const token = import.meta.env.VITE_NOTIFICATION_TOKEN || "";
-      const typeParam = notificationType === "All" ? undefined : notificationType;
+      const typeParam =
+        notificationType === "All" ? undefined : notificationType;
+
       const data = await fetchNotifications(token, {
         limit,
         page,
@@ -34,9 +37,21 @@ function AllNotifications() {
 
       setNotifications(data);
       setUsingMockData(!token);
+
+      await Log(
+        "info",
+        "component",
+        `Loaded ${data.length} notifications for page ${page}`
+      );
     } catch (err) {
       setError("Unable to load notifications.");
       console.error(err);
+
+      await Log(
+        "error",
+        "component",
+        `Failed to load notifications: ${err.message}`
+      );
     } finally {
       setLoading(false);
     }
@@ -47,7 +62,13 @@ function AllNotifications() {
     [notifications, viewedMap]
   );
 
-  const toggleViewed = (id) => {
+  const toggleViewed = async (id) => {
+    await Log(
+      "info",
+      "component",
+      `Notification ${id} view status toggled`
+    );
+
     setViewedMap((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
@@ -67,7 +88,13 @@ function AllNotifications() {
           <select
             id="notificationType"
             value={notificationType}
-            onChange={(event) => {
+            onChange={async (event) => {
+              await Log(
+                "info",
+                "component",
+                `Notification filter changed to ${event.target.value}`
+              );
+
               setNotificationType(event.target.value);
               setPage(1);
             }}
@@ -85,7 +112,15 @@ function AllNotifications() {
           <select
             id="limit"
             value={limit}
-            onChange={(event) => setLimit(Number(event.target.value))}
+            onChange={async (event) => {
+              await Log(
+                "info",
+                "component",
+                `Page size changed to ${event.target.value}`
+              );
+
+              setLimit(Number(event.target.value));
+            }}
           >
             {[5, 10, 15, 20].map((value) => (
               <option key={value} value={value}>
@@ -125,11 +160,33 @@ function AllNotifications() {
       )}
 
       <div className="pagination">
-        <button onClick={() => setPage((prev) => Math.max(prev - 1, 1))}>
+        <button
+          onClick={async () => {
+            await Log(
+              "info",
+              "component",
+              "Navigated to previous page"
+            );
+
+            setPage((prev) => Math.max(prev - 1, 1));
+          }}
+        >
           Previous
         </button>
+
         <span>Page {page}</span>
-        <button onClick={() => setPage((prev) => prev + 1)}>
+
+        <button
+          onClick={async () => {
+            await Log(
+              "info",
+              "component",
+              "Navigated to next page"
+            );
+
+            setPage((prev) => prev + 1);
+          }}
+        >
           Next
         </button>
       </div>
