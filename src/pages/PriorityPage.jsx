@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import NotificationCard from "../components/NotificationCard.jsx";
 import { fetchNotifications } from "../services/notificationService.js";
 import getTopNotifications from "../utils/priorityCalculator.js";
+import { Log } from "../utils/logger";
 import "../App.css";
 
 const TOP_OPTIONS = [5, 10, 15, 20];
@@ -24,18 +25,42 @@ function PriorityPage() {
 
     try {
       const token = import.meta.env.VITE_NOTIFICATION_TOKEN || "";
-      const data = await fetchNotifications(token, { limit: topN, page: 1 });
-      setNotifications(getTopNotifications(data, topN));
+      const data = await fetchNotifications(token, {
+        limit: topN,
+        page: 1,
+      });
+
+      const topNotifications = getTopNotifications(data, topN);
+
+      setNotifications(topNotifications);
       setUsingMockData(!token);
+
+      await Log(
+        "info",
+        "component",
+        `Loaded ${topNotifications.length} priority notifications`
+      );
     } catch (err) {
       setError("Unable to load priority notifications.");
       console.error(err);
+
+      await Log(
+        "error",
+        "component",
+        `Failed to load priority notifications: ${err.message}`
+      );
     } finally {
       setLoading(false);
     }
   };
 
-  const toggleViewed = (id) => {
+  const toggleViewed = async (id) => {
+    await Log(
+      "info",
+      "component",
+      `Priority notification ${id} view status toggled`
+    );
+
     setViewedMap((prev) => ({ ...prev, [id]: !prev[id] }));
   };
 
@@ -55,7 +80,15 @@ function PriorityPage() {
           <select
             id="topN"
             value={topN}
-            onChange={(event) => setTopN(Number(event.target.value))}
+            onChange={async (event) => {
+              await Log(
+                "info",
+                "component",
+                `Top notifications count changed to ${event.target.value}`
+              );
+
+              setTopN(Number(event.target.value));
+            }}
           >
             {TOP_OPTIONS.map((value) => (
               <option key={value} value={value}>
