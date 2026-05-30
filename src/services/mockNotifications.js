@@ -1,3 +1,5 @@
+import { Log } from "../utils/logger";
+
 export const MOCK_NOTIFICATIONS = [
   {
     ID: "d146095a-0d86-4a34-9e69-3900a14576bc",
@@ -62,5 +64,6 @@ export const MOCK_NOTIFICATIONS = [
 ];
 
 export const getMockNotifications = () => {
+  Log("info", "utils", "Mock notifications used");
   return [...MOCK_NOTIFICATIONS];
 };
