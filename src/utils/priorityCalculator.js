@@ -1,3 +1,5 @@
+import { Log } from "../utils/logger";
+
 const TYPE_WEIGHTS = {
   Placement: 3,
   Result: 2,
@@ -14,17 +16,23 @@ export const calculateScore = (notification) => {
   return weight * 1000000 + timestamp;
 };
 
-export const getTopNotifications = (
+export const getTopNotifications = async (
   notifications,
   limit = 10
 ) => {
-  return [...notifications]
-    .sort(
-      (a, b) =>
-        calculateScore(b) -
-        calculateScore(a)
-    )
-    .slice(0, limit);
+  const sorted = [...notifications].sort(
+    (a, b) => calculateScore(b) - calculateScore(a)
+  );
+
+  const top = sorted.slice(0, limit);
+
+  await Log(
+    "debug",
+    "utils",
+    `Calculated top ${limit} notifications from ${notifications.length} items`
+  );
+
+  return top;
 };
 
 export default getTopNotifications;
