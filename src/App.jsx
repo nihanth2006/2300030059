@@ -1,18 +1,26 @@
+import { useEffect } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import PriorityPage from "./pages/PriorityPage.jsx";
 import AllNotifications from "./pages/AllNotifications.jsx";
+import { Log } from "./utils/logger";
 import "./App.css";
 
 function App() {
+  useEffect(() => {
+    Log("info", "component", "App initialized");
+  }, []);
+
   return (
     <BrowserRouter>
       <div className="app-shell">
         <header className="topbar">
           <div className="brand">Campus Notifications</div>
+
           <nav className="nav-links">
             <Link to="/" className="nav-link">
               Priority Inbox
             </Link>
+
             <Link to="/all" className="nav-link">
               All Notifications
             </Link>
